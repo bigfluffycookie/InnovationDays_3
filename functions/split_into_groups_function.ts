@@ -1,6 +1,11 @@
 import {DefineFunction, Schema, SlackFunction} from "deno-slack-sdk/mod.ts";
+import {SlackAPIClient} from "deno-slack-sdk/functions/types.ts"
+import {SlackFunctionDefinition} from "deno-slack-sdk/functions/definitions/slack-function.ts";
 
-export const SplitIntoGroupsFunctionDefinition = DefineFunction({
+export const SplitIntoGroupsFunctionDefinition: SlackFunctionDefinition<{
+    channel: { description: string; type: string };
+    groupSize: { description: string; type: "integer" }
+}, { message: { description: string; type: "string" } }, string[], string[]> = DefineFunction({
     callback_id: "split_into_groups_function",
     title: "Split into groups",
     description: "Split channel members into groups randomly",
@@ -35,32 +40,31 @@ export default SlackFunction(
         let {channel, groupSize: groupSize} = inputs;
         groupSize = groupSize || 4;
         const memberIds = await getChannelMembersIDs(channel, client);
-        const shuffledArray = shuffle(memberIds);
+        const shuffledMemberIds = shuffle(memberIds);
 
-        const array_chunks = (array, chunk_size) => Array(Math.ceil(array.length / chunk_size)).fill().map((_, index) => index * chunk_size).map(begin => array.slice(begin, begin + chunk_size));
-		const result = array_chunks(shuffledArray, groupSize);
+        const groups = chunk(shuffledMemberIds, groupSize);
         const message = "Coffee break groups have been assigned!\n\n"
-          +  result.map((group, index) => `Breakout room ${index + 1}: ${group.map(toMention).join(', ')}`).join('\n');
+            + groups.map((group, index: number) => `Breakout room ${index + 1}: ${group.map(toMention).join(', ')}`).join('\n');
         return {outputs: {message}};
     },
 );
 
 function shuffle(array) {
-  let currentIndex = array.length,  randomIndex;
+    let currentIndex = array.length, randomIndex;
 
-  // While there remain elements to shuffle.
-  while (currentIndex != 0) {
+    // While there remain elements to shuffle.
+    while (currentIndex != 0) {
 
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
+        // Pick a remaining element.
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
 
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex], array[currentIndex]];
-  }
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+    }
 
-  return array;
+    return array;
 }
 
 const getChannelMembersIDs = async (channelId: string, client): Promise<string[]> => {
@@ -72,4 +76,16 @@ const getChannelMembersIDs = async (channelId: string, client): Promise<string[]
     return [response.error]
 }
 
-const toMention = (memberId: string) => `<@${memberId}>`
+const toMention = (memberId: string): string => `<@${memberId}>`
+
+
+function chunk(array: any[], chunk_size: number): any[][] {
+    const smallestChunkSize: number = array.length % chunk_size;
+    const hasTooSmallChunk: boolean = (smallestChunkSize <= chunk_size / 2);
+    const nbChunks: number = Math.ceil(array.length / chunk_size) + hasTooSmallChunk ? -1 : 0;
+    let chunkedArray: any[][] = Array(nbChunks).fill().map((_, index) => index * chunk_size).map(begin => array.slice(begin, begin + chunk_size));
+    if (hasTooSmallChunk) {
+        array.slice(-smallestChunkSize).forEach((value, index) => chunkedArray[index].push(value));
+    }
+    return chunkedArray;
+}
