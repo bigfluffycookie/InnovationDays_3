@@ -1,0 +1,12 @@
+{
+  "apps": {
+    "testworkspace-jks1038": {
+      "name": "testworkspace-jks1038",
+      "app_id": "A05EUAGTY9Y",
+      "team_id": "T05EKV4C7DZ",
+      "IsDev": false,
+      "InstallStatus": 0
+    }
+  },
+  "default": "testworkspace-jks1038"
+}
