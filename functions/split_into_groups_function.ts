@@ -39,7 +39,12 @@ export default SlackFunction(
     async ({inputs, client}) => {
         let {channel, groupSize: groupSize} = inputs;
         groupSize = groupSize || 4;
-        const memberIds = await getChannelMembersIDs(channel, client);
+
+        const memberIds: string[] | Error = await getChannelMembersIDs(channel, client);
+        if (memberIds instanceof Error) {
+            const errorMessage: string = `An error occurred when retrieving channel members: ${memberIds.message}`;
+            return {outputs: {errorMessage}};
+        }
         const shuffledMemberIds = shuffle(memberIds);
 
         const groups = chunk(shuffledMemberIds, groupSize);
@@ -67,13 +72,12 @@ function shuffle(array) {
     return array;
 }
 
-const getChannelMembersIDs = async (channelId: string, client): Promise<string[]> => {
+const getChannelMembersIDs = async (channelId: string, client): Promise<string[] | Error> => {
     const response = await client.conversations.members({channel: channelId});
     if (response.ok) {
         return response.members;
     }
-    // TODO handle error
-    return [response.error]
+    return new Error(response.error)
 }
 
 const toMention = (memberId: string): string => `<@${memberId}>`
