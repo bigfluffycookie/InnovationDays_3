@@ -82,9 +82,9 @@ const toMention = (memberId: string): string => `<@${memberId}>`
 function chunk(array: any[], chunk_size: number): any[][] {
     const smallestChunkSize: number = array.length % chunk_size;
     const hasTooSmallChunk: boolean = (smallestChunkSize <= chunk_size / 2);
-    const nbChunks: number = Math.ceil(array.length / chunk_size) + hasTooSmallChunk ? -1 : 0;
+    const nbChunks: number = Math.max(1, Math.ceil(array.length / chunk_size) + (hasTooSmallChunk ? -1 : 0);
     let chunkedArray: any[][] = Array(nbChunks).fill().map((_, index) => index * chunk_size).map(begin => array.slice(begin, begin + chunk_size));
-    if (hasTooSmallChunk) {
+    if (nbChunks > 1 && hasTooSmallChunk) {
         array.slice(-smallestChunkSize).forEach((value, index) => chunkedArray[index].push(value));
     }
     return chunkedArray;
