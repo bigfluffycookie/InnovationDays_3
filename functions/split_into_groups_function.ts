@@ -38,7 +38,7 @@ export default SlackFunction(
         const shuffledArray = shuffle(memberIds);
 
         const array_chunks = (array, chunk_size) => Array(Math.ceil(array.length / chunk_size)).fill().map((_, index) => index * chunk_size).map(begin => array.slice(begin, begin + chunk_size));
-		var result = array_chunks(shuffledArray, groupSize);
+		const result = array_chunks(shuffledArray, groupSize);
         const message = "Coffee break groups have been assigned!\n\n"
           +  result.map((group, index) => `Breakout room ${index + 1}: ${group.map(toMention).join(', ')}`).join('\n');
         return {outputs: {message}};

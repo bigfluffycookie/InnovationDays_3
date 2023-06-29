@@ -1,6 +1,6 @@
 import { Trigger } from "deno-slack-sdk/types.ts";
-import { TriggerContextData, TriggerTypes } from "deno-slack-api/mod.ts";
-import GreetingWorkflow from "../workflows/greeting_workflow.ts";
+import { TriggerTypes } from "deno-slack-api/mod.ts";
+import SplitIntoGroupsFunctionDefinition from "../workflows/split_into_groups.ts";
 
 /**
  * Triggers determine when workflows are executed. A trigger
@@ -8,11 +8,11 @@ import GreetingWorkflow from "../workflows/greeting_workflow.ts";
  * such as a user pressing a button or when a specific event occurs.
  * https://api.slack.com/automation/triggers
  */
-const scheduleTrigger: Trigger<typeof GreetingWorkflow.definition> = {
+const scheduleTrigger: Trigger<typeof SplitIntoGroupsFunctionDefinition.definition> = {
   type: TriggerTypes.Scheduled,
   name: "SonarLint Coffe Break",
   description: "Schedule Coffee Break",
-  workflow: `#/workflows/${GreetingWorkflow.definition.callback_id}`,
+  workflow: `#/workflows/${SplitIntoGroupsFunctionDefinition.definition.callback_id}`,
   inputs: {
   },
   schedule: {

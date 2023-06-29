@@ -1,5 +1,5 @@
 import { Manifest } from "deno-slack-sdk/mod.ts";
-import GreetingWorkflow from "./workflows/greeting_workflow.ts";
+import SplitIntoGroupsWorkflow from "./workflows/split_into_groups.ts";
 
 /**
  * The app manifest contains the app's configuration. This
@@ -7,11 +7,11 @@ import GreetingWorkflow from "./workflows/greeting_workflow.ts";
  * https://api.slack.com/automation/manifest
  */
 export default Manifest({
-  name: "greeting",
+  name: "SonarLint Coffee Break",
   description:
-    "A sample that demonstrates using a function, workflow and trigger to send a greeting",
-  icon: "assets/default_new_app_icon.png",
-  workflows: [GreetingWorkflow],
+    "Creates random small groups from the list of channel members and assigns them to breakout rooms",
+  icon: "assets/sonarlint_coffe_break_app_icon.png",
+  workflows: [SplitIntoGroupsWorkflow],
   outgoingDomains: [],
   botScopes: ["commands", "chat:write", "chat:write.public"],
 });

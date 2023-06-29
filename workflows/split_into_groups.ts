@@ -7,7 +7,7 @@ import { SplitIntoGroupsFunctionDefinition } from "../functions/split_into_group
  * https://api.slack.com/automation/workflows
  */
 const SplitIntoGroupsWorkflow = DefineWorkflow({
-  callback_id: "greeting_workflow",
+  callback_id: "split_into_groups",
   title: "Sonarlint Coffee break",
   description: "Schedule Sonarlint Coffee Break",
   input_parameters: {
