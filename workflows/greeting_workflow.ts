@@ -8,31 +8,25 @@ import { SplitIntoGroupsFunctionDefinition } from "../functions/split_into_group
  */
 const SplitIntoGroupsWorkflow = DefineWorkflow({
   callback_id: "greeting_workflow",
-  title: "Send a greeting",
-  description: "Send a greeting to channel",
+  title: "Sonarlint Coffee break",
+  description: "Schedule Sonarlint Coffee Break",
   input_parameters: {
-    properties: {
-      interactivity: {
-        type: Schema.slack.types.interactivity,
-      },
-      channel: {
-        type: Schema.slack.types.channel_id,
-      },
-    },
-    required: ["interactivity"],
+    properties: {},
+    required: [],
   },
 });
+const channel_id = "C04QJ5HE5TM"
 
 const splitIntoGroupsFunctionStep = SplitIntoGroupsWorkflow.addStep(
   SplitIntoGroupsFunctionDefinition,
   {
-    channel: SplitIntoGroupsWorkflow.inputs.channel,
+    channel: channel_id,
     groupSize: 2,
   },
 );
 
 SplitIntoGroupsWorkflow.addStep(Schema.slack.functions.SendMessage, {
-  channel_id: SplitIntoGroupsWorkflow.inputs.channel,
+  channel_id: channel_id,
   message: splitIntoGroupsFunctionStep.outputs.message,
 });
 
