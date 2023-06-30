@@ -33,7 +33,7 @@ export const SplitIntoGroupsFunctionDefinition = DefineFunction({
 export default SlackFunction(
     SplitIntoGroupsFunctionDefinition,
     async ({inputs, client}) => {
-        let {channel, groupSize: groupSize} = inputs;
+        let {channel, groupSize} = inputs;
         groupSize = groupSize || 4;
         try {
             const messageToSend = await splitIntoGroups(client, channel, groupSize);
@@ -48,7 +48,7 @@ export default SlackFunction(
 
 async function splitIntoGroups(client: SlackAPIClient, channel: string, groupSize: number): Promise<string> {
     const memberIds = await getChannelMembersIDs(channel, client);
-    const shuffledMemberIds = shuffle(memberIds);
+    const shuffledMemberIds = _internals.shuffle(memberIds);
 
     const groups = chunk(shuffledMemberIds, groupSize);
     return "Coffee break groups have been assigned!\n\n"
@@ -86,11 +86,18 @@ const toMention = (memberId: string): string => `<@${memberId}>`
 
 function chunk(array: any[], chunk_size: number): any[][] {
     const smallestChunkSize: number = array.length % chunk_size;
-    const hasTooSmallChunk: boolean = (smallestChunkSize <= chunk_size / 2);
-    const nbChunks: number = Math.max(1, (Math.ceil(array.length / chunk_size) + (hasTooSmallChunk ? -1 : 0)));
+    let nbChunks = Math.ceil(array.length / chunk_size);
+    const hasTooSmallChunk = nbChunks > 1 && smallestChunkSize > 0 && smallestChunkSize <= (chunk_size / 2);
+    if (hasTooSmallChunk) {
+        // the last one will be distributed over the first one(s)
+        nbChunks--;
+    }
     let chunkedArray: any[][] = Array(nbChunks).fill(0).map((_, index) => index * chunk_size).map(begin => array.slice(begin, begin + chunk_size));
-    if (nbChunks > 1 && hasTooSmallChunk) {
+    if (hasTooSmallChunk) {
         array.slice(-smallestChunkSize).forEach((value, index) => chunkedArray[index].push(value));
     }
     return chunkedArray;
 }
+
+// for testing purposes
+export const _internals = { shuffle };
