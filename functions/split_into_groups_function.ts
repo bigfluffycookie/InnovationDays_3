@@ -1,5 +1,5 @@
 import {DefineFunction, Schema, SlackFunction} from "deno-slack-sdk/mod.ts";
-import { SlackAPIClient } from "deno-slack-sdk/types.ts";
+import {SlackAPIClient} from "deno-slack-sdk/types.ts";
 
 export const SplitIntoGroupsFunctionDefinition = DefineFunction({
     callback_id: "split_into_groups_function",
@@ -26,7 +26,7 @@ export const SplitIntoGroupsFunctionDefinition = DefineFunction({
                 description: "The result of the split",
             },
         },
-        required: ["message"],
+        required: [],
     },
 });
 
@@ -35,20 +35,33 @@ export default SlackFunction(
     async ({inputs, client}) => {
         let {channel, groupSize: groupSize} = inputs;
         groupSize = groupSize || 4;
-
-        const memberIds: string[] | Error = await getChannelMembersIDs(channel, client);
-        if (memberIds instanceof Error) {
-            const errorMessage: string = `An error occurred when retrieving channel members: ${memberIds.message}`;
-            return {outputs: {message: errorMessage}};
+        try {
+            const messageToSend = await splitIntoGroups(client, channel, groupSize);
+            return {outputs: {message: messageToSend}};
+        } catch (e) {
+            const errorMessage = `An error occurred when retrieving channel members: ${e.toString()}`;
+            return {outputs: {}, error: errorMessage};
         }
-        const shuffledMemberIds = shuffle(memberIds);
 
-        const groups = chunk(shuffledMemberIds, groupSize);
-        const message = "Coffee break groups have been assigned!\n\n"
-            + groups.map((group, index: number) => `Breakout room ${index + 1}: ${group.map(toMention).join(', ')}`).join('\n');
-        return {outputs: {message}};
     },
 );
+
+async function splitIntoGroups(client: SlackAPIClient, channel: string, groupSize: number): Promise<string> {
+    const memberIds = await getChannelMembersIDs(channel, client);
+    const shuffledMemberIds = shuffle(memberIds);
+
+    const groups = chunk(shuffledMemberIds, groupSize);
+    return "Coffee break groups have been assigned!\n\n"
+        + groups.map((group, index: number) => `Breakout room ${index + 1}: ${group.map(toMention).join(', ')}`).join('\n');
+}
+
+const getChannelMembersIDs = async (channelId: string, client: SlackAPIClient): Promise<string[]> => {
+    const response = await client.conversations.members({channel: channelId});
+    if (response.ok) {
+        return response.members;
+    }
+    throw new Error(response.error)
+}
 
 function shuffle(array: any[]): any[] {
     let currentIndex = array.length, randomIndex;
@@ -66,14 +79,6 @@ function shuffle(array: any[]): any[] {
     }
 
     return array;
-}
-
-const getChannelMembersIDs = async (channelId: string, client: SlackAPIClient): Promise<string[] | Error> => {
-    const response = await client.conversations.members({channel: channelId});
-    if (response.ok) {
-        return response.members;
-    }
-    return new Error(response.error)
 }
 
 const toMention = (memberId: string): string => `<@${memberId}>`
