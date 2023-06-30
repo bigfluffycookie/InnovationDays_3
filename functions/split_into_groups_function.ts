@@ -1,11 +1,7 @@
 import {DefineFunction, Schema, SlackFunction} from "deno-slack-sdk/mod.ts";
-import {SlackAPIClient} from "deno-slack-sdk/functions/types.ts"
-import {SlackFunctionDefinition} from "deno-slack-sdk/functions/definitions/slack-function.ts";
+import { SlackAPIClient } from "deno-slack-sdk/types.ts";
 
-export const SplitIntoGroupsFunctionDefinition: SlackFunctionDefinition<{
-    channel: { description: string; type: string };
-    groupSize: { description: string; type: "integer" }
-}, { message: { description: string; type: "string" } }, string[], string[]> = DefineFunction({
+export const SplitIntoGroupsFunctionDefinition = DefineFunction({
     callback_id: "split_into_groups_function",
     title: "Split into groups",
     description: "Split channel members into groups randomly",
@@ -43,7 +39,7 @@ export default SlackFunction(
         const memberIds: string[] | Error = await getChannelMembersIDs(channel, client);
         if (memberIds instanceof Error) {
             const errorMessage: string = `An error occurred when retrieving channel members: ${memberIds.message}`;
-            return {outputs: {errorMessage}};
+            return {outputs: {message: errorMessage}};
         }
         const shuffledMemberIds = shuffle(memberIds);
 
@@ -54,7 +50,7 @@ export default SlackFunction(
     },
 );
 
-function shuffle(array) {
+function shuffle(array: any[]): any[] {
     let currentIndex = array.length, randomIndex;
 
     // While there remain elements to shuffle.
@@ -72,7 +68,7 @@ function shuffle(array) {
     return array;
 }
 
-const getChannelMembersIDs = async (channelId: string, client): Promise<string[] | Error> => {
+const getChannelMembersIDs = async (channelId: string, client: SlackAPIClient): Promise<string[] | Error> => {
     const response = await client.conversations.members({channel: channelId});
     if (response.ok) {
         return response.members;
@@ -86,8 +82,8 @@ const toMention = (memberId: string): string => `<@${memberId}>`
 function chunk(array: any[], chunk_size: number): any[][] {
     const smallestChunkSize: number = array.length % chunk_size;
     const hasTooSmallChunk: boolean = (smallestChunkSize <= chunk_size / 2);
-    const nbChunks: number = Math.max(1, Math.ceil(array.length / chunk_size) + (hasTooSmallChunk ? -1 : 0);
-    let chunkedArray: any[][] = Array(nbChunks).fill().map((_, index) => index * chunk_size).map(begin => array.slice(begin, begin + chunk_size));
+    const nbChunks: number = Math.max(1, (Math.ceil(array.length / chunk_size) + (hasTooSmallChunk ? -1 : 0)));
+    let chunkedArray: any[][] = Array(nbChunks).fill(0).map((_, index) => index * chunk_size).map(begin => array.slice(begin, begin + chunk_size));
     if (nbChunks > 1 && hasTooSmallChunk) {
         array.slice(-smallestChunkSize).forEach((value, index) => chunkedArray[index].push(value));
     }
