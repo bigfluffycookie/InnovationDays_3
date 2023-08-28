@@ -10,7 +10,7 @@ import SplitIntoGroupsFunctionDefinition from "../workflows/split_into_groups.ts
  */
 const scheduleTrigger: Trigger<typeof SplitIntoGroupsFunctionDefinition.definition> = {
   type: TriggerTypes.Scheduled,
-  name: "SonarLint Coffe Break",
+  name: "SonarLint Coffee Break",
   description: "Schedule Coffee Break",
   workflow: `#/workflows/${SplitIntoGroupsFunctionDefinition.definition.callback_id}`,
   inputs: {
@@ -21,7 +21,7 @@ const scheduleTrigger: Trigger<typeof SplitIntoGroupsFunctionDefinition.definiti
     frequency: {
       type: "weekly",
       repeats_every: 1,
-      on_days: ["Monday"],
+      on_days: ["Wednesday"],
     },
   },
 };

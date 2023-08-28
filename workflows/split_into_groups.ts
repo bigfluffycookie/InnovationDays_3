@@ -15,13 +15,13 @@ const SplitIntoGroupsWorkflow = DefineWorkflow({
     required: [],
   },
 });
-const channel_id = "C05ENG9C3LL"
+const channel_id = "C04QJ5HE5TM"
 
 const splitIntoGroupsFunctionStep = SplitIntoGroupsWorkflow.addStep(
   SplitIntoGroupsFunctionDefinition,
   {
     channel: channel_id,
-    groupSize: 2,
+    groupSize: 4,
   },
 );
 
