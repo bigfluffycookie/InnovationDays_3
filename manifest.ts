@@ -13,5 +13,5 @@ export default Manifest({
   icon: "assets/sonarlint_coffe_break_app_icon.png",
   workflows: [SplitIntoGroupsWorkflow],
   outgoingDomains: [],
-  botScopes: ["commands", "chat:write", "chat:write.public"],
+  botScopes: ["commands", "chat:write", "chat:write.public", "channels:read", "groups:read", "im:read", "mpim:read", "workflow.steps:execute"],
 });
