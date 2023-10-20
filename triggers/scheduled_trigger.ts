@@ -21,7 +21,7 @@ const scheduleTrigger: Trigger<typeof SplitIntoGroupsFunctionDefinition.definiti
     frequency: {
       type: "weekly",
       repeats_every: 1,
-      on_days: ["Wednesday"],
+      on_days: ["Friday"],
     },
   },
 };
